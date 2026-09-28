@@ -88,6 +88,11 @@ export function explain(e: unknown): { title: string; text: string } {
           title: "Your key was rejected",
           text: "Keys expire, and resetting one on Moodle replaces the old one. Get the current key and paste it again.",
         };
+      case "accessexception":
+        return {
+          title: "Moodle won't accept this key",
+          text: "The key was read but isn't allowed to be used. Make sure you copied the key on the Moodle mobile web service row, or tap Reset on that row and paste the new key." + (e.message && !/access control exception/i.test(e.message) ? ` Moodle said: ${e.message}` : ""),
+        };
       case "webservicesnotenabled":
       case "enablewsdescription":
         return { title: "This site doesn't allow apps", text: "Your school has switched off Moodle's mobile web services, so apps like this can't connect." };
@@ -137,8 +142,9 @@ export function httpTransport(site: string, token: string): Transport {
         throw new MoodleError("notmoodle", "The site didn't answer like Moodle.");
       }
       if (json && typeof json === "object" && !Array.isArray(json) && "exception" in json) {
-        const j = json as { errorcode?: string; message?: string };
-        throw new MoodleError(j.errorcode || "moodle", j.message || "Moodle refused the request.");
+        const j = json as { errorcode?: string; message?: string; debuginfo?: string };
+        const msg = [j.message, j.debuginfo].filter(Boolean).join(" ").trim();
+        throw new MoodleError(j.errorcode || "moodle", msg || "Moodle refused the request.");
       }
       return json as T;
     },
