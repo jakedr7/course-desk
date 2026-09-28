@@ -1,8 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-
+import "@fontsource/lato/400.css";
+import "@fontsource/lato/700.css";
 import "./styles/tokens.css";
 import "./styles/app.css";
+import "./styles/canvas.css";
 import { App } from "./App";
 import "@capacitor/core";
 import { NATIVE, PREVIEW } from "./config";

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Bell, Calendar, ChartNoAxesColumn, House, Library, RefreshCw, Search } from "lucide-react";
-import { useCourses, useNotices, useSession } from "../lib/data";
+import { BookOpen, Calendar, ChartNoAxesColumn, Gauge, House, Inbox, ListTodo, RefreshCw, Search } from "lucide-react";
+import { useNotices, useSession } from "../lib/data";
 import { cache, useBusy, useLastUpdated } from "../lib/query";
 import { useRoute, type Page } from "../lib/router";
 import { ago, initials } from "../lib/format";
@@ -20,70 +20,46 @@ export function Logo() {
   );
 }
 
-const NAV: { page: Page; label: string; Icon: typeof House; href: string }[] = [
-  { page: "home", label: "Home", Icon: House, href: "#/" },
-  { page: "calendar", label: "Calendar", Icon: Calendar, href: "#/calendar" },
-  { page: "courses", label: "Courses", Icon: Library, href: "#/courses" },
-  { page: "grades", label: "Grades", Icon: ChartNoAxesColumn, href: "#/grades" },
-  { page: "inbox", label: "Inbox", Icon: Bell, href: "#/inbox" },
+const NAV: { page: Page; label: string; Icon: typeof House; href: string; phone: boolean; wide: boolean }[] = [
+  { page: "home", label: "Dashboard", Icon: Gauge, href: "#/", phone: true, wide: true },
+  { page: "courses", label: "Courses", Icon: BookOpen, href: "#/courses", phone: false, wide: true },
+  { page: "calendar", label: "Calendar", Icon: Calendar, href: "#/calendar", phone: true, wide: true },
+  { page: "todo", label: "To Do", Icon: ListTodo, href: "#/todo", phone: true, wide: true },
+  { page: "grades", label: "Grades", Icon: ChartNoAxesColumn, href: "#/grades", phone: true, wide: true },
+  { page: "inbox", label: "Inbox", Icon: Inbox, href: "#/inbox", phone: true, wide: true },
 ];
 
 function useUnread(): number {
   const n = useNotices();
   return n.data?.unread ?? 0;
 }
+const isActive = (route: ReturnType<typeof useRoute>, p: Page) => route.page === p || (p === "courses" && route.page === "course");
 
-function Sidebar() {
+/** Canvas-style global navigation: a narrow dark column of icons with labels. */
+function GlobalNav() {
   const route = useRoute();
   const { account } = useSession();
-  const { shown } = useCourses();
   const unread = useUnread();
-  const active = (p: Page) => route.page === p || (p === "courses" && route.page === "course");
   return (
-    <aside className="sidebar" aria-label="Main">
-      <a className="brand" href="#/">
+    <aside className="gnav" aria-label="Main">
+      <a className="gnav-logo" href="#/" aria-label="Course Desk dashboard">
         <Logo />
-        <span>
-          <b>Course Desk</b>
-          <small>{account.siteName}</small>
-        </span>
       </a>
-      <nav className="nav">
-        {NAV.map(({ page, label, Icon, href }) => (
-          <a key={page} className="nav-item" href={href} aria-current={active(page) ? "page" : undefined}>
-            <Icon />
-            {label}
-            {page === "inbox" && unread > 0 && (
-              <span className="count" aria-label={`${unread} unread`}>
-                {unread > 99 ? "99+" : unread}
-              </span>
-            )}
-          </a>
-        ))}
-      </nav>
-      {shown.length > 0 && (
-        <div>
-          <div className="side-label">This semester</div>
-          <div className="side-courses">
-            {shown.map((c) => (
-              <a key={c.id} className="side-course" href={`#/course/${c.id}`} style={courseVar(c.color)} aria-current={route.page === "course" && route.id === c.id ? "page" : undefined} title={c.fullname}>
-                <i />
-                <b>{c.code}</b>
-                <span>{c.name !== c.code ? c.name : ""}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-      <div className="side-foot">
-        <a className="acct" href="#/settings" aria-current={route.page === "settings" ? "page" : undefined}>
-          <span className="avatar sm">{initials(account.name)}</span>
-          <span className="acct-text">
-            <b>{account.name}</b>
-            <small>{account.demo ? "Sample data" : "Settings"}</small>
-          </span>
+      <a className="gnav-item" href="#/settings" aria-current={route.page === "settings" ? "page" : undefined}>
+        <span className="avatar sm">{initials(account.name)}</span>
+        <span>Account</span>
+      </a>
+      {NAV.filter((n) => n.wide).map(({ page, label, Icon, href }) => (
+        <a key={page} className="gnav-item" href={href} aria-current={isActive(route, page) ? "page" : undefined}>
+          <Icon strokeWidth={1.8} />
+          <span>{label}</span>
+          {page === "inbox" && unread > 0 && (
+            <span className="count" aria-label={`${unread} unread`}>
+              {unread > 99 ? "99+" : unread}
+            </span>
+          )}
         </a>
-      </div>
+      ))}
     </aside>
   );
 }
@@ -91,12 +67,11 @@ function Sidebar() {
 function TabBar() {
   const route = useRoute();
   const unread = useUnread();
-  const active = (p: Page) => route.page === p || (p === "courses" && route.page === "course");
   return (
     <nav className="tabbar" aria-label="Main">
-      {NAV.map(({ page, label, Icon, href }) => (
-        <a key={page} className="tab" href={href} aria-current={active(page) ? "page" : undefined}>
-          <Icon strokeWidth={active(page) ? 2.3 : 1.9} />
+      {NAV.filter((n) => n.phone).map(({ page, label, Icon, href }) => (
+        <a key={page} className="tab" href={href} aria-current={isActive(route, page) ? "page" : undefined}>
+          <Icon strokeWidth={isActive(route, page) ? 2.2 : 1.8} />
           <span className="tab-label">{label}</span>
           {page === "inbox" && unread > 0 && <span className="count">{unread > 99 ? "99+" : unread}</span>}
         </a>
@@ -105,7 +80,7 @@ function TabBar() {
   );
 }
 
-export function TopBar({ title, left }: { title: string; left?: ReactNode }) {
+export function TopBar({ title, left, crumbs, color }: { title: string; left?: ReactNode; crumbs?: { label: string; href?: string }[]; color?: number }) {
   const { account } = useSession();
   const { setSearchOpen } = useUi();
   const busy = useBusy();
@@ -123,10 +98,21 @@ export function TopBar({ title, left }: { title: string; left?: ReactNode }) {
   }, []);
   const mac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
   return (
-    <header className={`topbar ${lined ? "lined" : ""}`}>
+    <header className={`topbar ${lined ? "lined" : ""} ${color != null ? "tinted" : ""}`} style={color != null ? courseVar(color) : undefined}>
       <div className="topbar-title">
         {left}
-        <h1>{title}</h1>
+        {crumbs ? (
+          <nav className="crumbs" aria-label="Breadcrumb">
+            {crumbs.map((c, i) => (
+              <span key={c.label}>
+                {i > 0 && <span className="crumb-sep" aria-hidden="true">›</span>}
+                {c.href ? <a href={c.href}>{c.label}</a> : <h1>{c.label}</h1>}
+              </span>
+            ))}
+          </nav>
+        ) : (
+          <h1>{title}</h1>
+        )}
       </div>
       <button className="search-btn" type="button" onClick={() => setSearchOpen(true)}>
         <Search />
@@ -150,7 +136,7 @@ export function TopBar({ title, left }: { title: string; left?: ReactNode }) {
 export function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="app">
-      <Sidebar />
+      <GlobalNav />
       <div className="main">{children}</div>
       <TabBar />
     </div>

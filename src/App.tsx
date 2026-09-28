@@ -15,6 +15,7 @@ import { Grades } from "./pages/Grades";
 import { Home } from "./pages/Home";
 import { Inbox } from "./pages/Inbox";
 import { Settings } from "./pages/Settings";
+import { Todo } from "./pages/Todo";
 import { Welcome } from "./pages/Welcome";
 import { ActivitySheet } from "./ui/ActivitySheet";
 import { SearchPalette } from "./ui/Search";
@@ -125,6 +126,9 @@ function Gate() {
       break;
     case "settings":
       page = <Settings />;
+      break;
+    case "todo":
+      page = <Todo />;
       break;
     default:
       page = <Home />;

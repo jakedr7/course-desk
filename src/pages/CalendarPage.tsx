@@ -78,27 +78,6 @@ export function CalendarPage() {
             <ChevronRight />
           </button>
         </div>
-        {shown.length > 1 && (
-          <div className="filter-chips" style={{ marginBottom: 16 }} role="group" aria-label="Show courses">
-            {shown.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                className="cchip"
-                style={courseVar(c.color)}
-                aria-pressed={!hidden.has(c.id)}
-                onClick={() => setHidden((h) => {
-                  const n = new Set(h);
-                  if (n.has(c.id)) n.delete(c.id);
-                  else n.add(c.id);
-                  return n;
-                })}
-              >
-                <i /> {c.code}
-              </button>
-            ))}
-          </div>
-        )}
         <div className="cal-layout">
           <div className="cal" aria-busy={cal.loading}>
             <div className="cal-dows" aria-hidden="true">
@@ -141,6 +120,7 @@ export function CalendarPage() {
               })}
             </div>
           </div>
+          <div className="cal-side">
           <section className="agenda panel panel-pad" aria-live="polite">
             <h3>{dayLong(picked)}</h3>
             {cal.loading ? (
@@ -160,6 +140,29 @@ export function CalendarPage() {
               dayEvents.map((e) => <AgendaRow key={`${e.type}${e.id}`} e={e} />)
             )}
           </section>
+            {shown.length > 1 && (
+              <section className="cal-list" aria-label="Calendars">
+                <h3>Calendars</h3>
+                {shown.map((c) => (
+                  <label key={c.id} className="cal-check" style={courseVar(c.color)}>
+                    <input
+                      type="checkbox"
+                      checked={!hidden.has(c.id)}
+                      onChange={() =>
+                        setHidden((h) => {
+                          const n = new Set(h);
+                          if (n.has(c.id)) n.delete(c.id);
+                          else n.add(c.id);
+                          return n;
+                        })
+                      }
+                    />
+                    <span>{c.name}</span>
+                  </label>
+                ))}
+              </section>
+            )}
+          </div>
         </div>
       </main>
     </>

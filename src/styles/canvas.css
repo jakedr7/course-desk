@@ -1,0 +1,211 @@
+/*
+  Canvas-style skin, loaded after app.css.
+  Slate global navigation, white pages, Lato, Canvas blue links, shadowed course cards.
+*/
+:root {
+  --display: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --body: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --bg: #FFFFFF;
+  --bg-2: #F2F4F4;
+  --surface: #FFFFFF;
+  --surface-2: #F5F5F5;
+  --ink: #2D3B45;
+  --ink-2: #394B58;
+  --muted: #6B7780;
+  --faint: #8B969E;
+  --line: #C7CDD1;
+  --line-2: #A5AFB5;
+  --hi: #0374B5;
+  --hi-ink: #FFFFFF;
+  --danger: #E0061F;
+  --danger-bg: #FDECEE;
+  --ok: #0B874B;
+  --ok-bg: #E6F4EC;
+  --warn: #C94D0A;
+  --warn-bg: #FFF1E8;
+  --focus: #0374B5;
+  --nav: #394B58;
+  --nav-ink: #FFFFFF;
+  --gnav: 84px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12171C; --bg-2: #1B2229; --surface: #1B2229; --surface-2: #222A32;
+    --ink: #E4E9ED; --ink-2: #C5CED5; --muted: #98A4AD; --line: #34404A; --line-2: #4A5863;
+    --hi: #4EA5E0; --hi-ink: #0B1116; --focus: #4EA5E0; --nav: #0B1116;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12171C; --bg-2: #1B2229; --surface: #1B2229; --surface-2: #222A32;
+  --ink: #E4E9ED; --ink-2: #C5CED5; --muted: #98A4AD; --line: #34404A; --line-2: #4A5863;
+  --hi: #4EA5E0; --hi-ink: #0B1116; --focus: #4EA5E0; --nav: #0B1116;
+}
+
+body { font-size: 15px; }
+a { color: var(--hi); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3, h4 { font-weight: 700; }
+
+/* ---------- global navigation ---------- */
+.app { grid-template-columns: var(--gnav) minmax(0, 1fr); }
+.gnav {
+  position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto; z-index: 35;
+  background: var(--nav); display: flex; flex-direction: column; align-items: stretch;
+}
+.gnav-logo { height: 84px; display: grid; place-items: center; }
+.gnav-logo svg { width: 46px; height: 46px; }
+.gnav-item {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 11px 4px 10px; color: var(--nav-ink); font-size: 0.75rem; text-align: center; text-decoration: none;
+}
+.gnav-item:hover { background: rgba(0, 0, 0, 0.22); text-decoration: none; }
+.gnav-item svg { width: 26px; height: 26px; }
+.gnav-item .avatar { width: 30px; height: 30px; font-size: 0.72rem; background: #fff; color: var(--nav); border: 2px solid #fff; }
+.gnav-item[aria-current="page"] { background: var(--surface); color: var(--hi); }
+.gnav-item[aria-current="page"] .avatar { border-color: var(--hi); }
+.gnav-item .count { position: absolute; top: 6px; right: 14px; background: var(--hi); color: #fff; box-shadow: 0 0 0 2px var(--nav); }
+.gnav-item[aria-current="page"] .count { box-shadow: 0 0 0 2px var(--surface); }
+
+/* ---------- header / breadcrumbs ---------- */
+.topbar { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom: 1px solid var(--line); min-height: 60px; }
+.topbar-title h1 { font-size: 1rem; font-weight: 400; }
+.crumbs { display: flex; align-items: center; min-width: 0; font-size: 1rem; }
+.crumbs > span { display: inline-flex; align-items: center; min-width: 0; }
+.crumbs a { color: var(--hi); white-space: nowrap; }
+.crumbs h1 { display: inline; font-size: 1rem; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crumb-sep { margin: 0 10px; color: var(--muted); }
+.search-btn { border-radius: 4px; border-color: var(--line); }
+.page { padding-top: 20px; }
+
+.dash-title, .page-title {
+  font-size: 1.9rem; font-weight: 400; margin: 0 0 24px; padding-bottom: 12px; border-bottom: 1px solid var(--line);
+}
+
+/* ---------- buttons, panels ---------- */
+.btn { border-radius: 4px; border-color: var(--line); background: var(--surface-2); color: var(--ink); font-weight: 400; min-height: 38px; }
+.btn:hover { border-color: var(--line-2); background: var(--bg-2); text-decoration: none; }
+.btn.primary { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }
+.btn.primary:hover { opacity: 1; filter: brightness(0.92); background: var(--hi); }
+.btn.ghost { background: transparent; }
+.panel { border-radius: 4px; }
+.segmented { border-radius: 4px; }
+.segmented button { border-radius: 3px; font-weight: 400; }
+.segmented button[aria-pressed="true"] { color: var(--hi); font-weight: 700; }
+.chip { font-weight: 400; }
+.field input, .search-input, .filter { border-radius: 4px; border-color: var(--line); }
+
+/* ---------- dashboard ---------- */
+.home { grid-template-columns: minmax(0, 1fr) 300px; gap: 40px; }
+.home-rail { top: 84px; gap: 30px; }
+.home-rail .panel { border: 0; background: none; padding: 0; }
+.home-rail .sect-head { border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 8px; }
+.home-rail .sect-head h2 { font-size: 1rem; font-weight: 700; }
+.home-rail .sect-head a { color: var(--hi); font-weight: 400; font-size: 0.875rem; }
+.show-all { display: inline-block; margin-top: 10px; font-size: 0.875rem; }
+
+.ccards { grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 28px 24px; }
+.ccard {
+  display: flex; flex-direction: column; background: var(--surface); border: 0; border-radius: 4px; overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); transition: box-shadow 0.15s;
+}
+.ccard:hover { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); }
+.ccard-hero { display: block; height: 146px; background: var(--k); position: relative; }
+.ccard-hero:hover { filter: brightness(0.93); text-decoration: none; }
+.ccard-grade { position: absolute; top: 12px; left: 12px; background: #fff; color: var(--k); font-weight: 700; font-size: 0.85rem; padding: 2px 8px; border-radius: 4px; }
+.ccard-body { padding: 12px 16px 4px; display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.ccard-title { color: var(--k); font-weight: 700; font-size: 1rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ccard-code { color: var(--ink-2); font-size: 0.875rem; font-weight: 400; }
+.ccard-next { color: var(--muted); font-size: 0.8rem; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ccard-icons { display: flex; gap: 2px; padding: 4px 8px 10px; }
+.ccard-icons a { position: relative; width: 46px; height: 38px; display: grid; place-items: center; color: var(--muted); border-radius: 4px; }
+.ccard-icons a:hover { color: var(--hi); background: var(--bg-2); }
+.ccard-icons svg { width: 22px; height: 22px; }
+.ccard-badge { position: absolute; top: 1px; right: 5px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--k); color: #fff; font-size: 0.7rem; font-weight: 700; line-height: 18px; text-align: center; }
+
+/* to-do rows look like Canvas's To Do items: blue titles, grey details */
+.todo:hover, .panel .todo:hover { background: var(--bg-2); }
+.todo-name { color: var(--hi); font-weight: 400; }
+.kind-icon { background: none; color: var(--ink-2); width: 30px; height: 30px; }
+.kind-icon svg { width: 22px; height: 22px; }
+.todo { grid-template-columns: 30px minmax(0, 1fr) auto; border-radius: 4px; }
+.todo-group h3 { font-weight: 700; color: var(--ink-2); }
+.news-subject { color: var(--hi); font-weight: 400; }
+.fname { color: var(--hi); font-weight: 400; }
+.new-badge { border-radius: 3px; }
+
+/* ---------- course page ---------- */
+.course-layout { grid-template-columns: 170px minmax(0, 1fr) 280px; gap: 32px; }
+.cnav { display: flex; flex-direction: column; gap: 2px; position: sticky; top: 84px; align-self: start; }
+.cnav-title { font-size: 0.8rem; color: var(--muted); padding: 0 12px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cnav-item { padding: 6px 12px; border-left: 3px solid transparent; color: var(--hi); }
+.cnav-item[aria-current="page"] { color: var(--ink); border-left-color: var(--ink); font-weight: 700; text-decoration: none; }
+.course-heading { font-size: 1.5rem; font-weight: 400; margin: 0 0 18px; }
+.course-aside { top: 84px; }
+.course-aside .panel { border: 0; padding: 0; background: none; }
+.course-aside .sect-head { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+
+/* modules: grey header bars with rows underneath */
+.sec-block { border: 1px solid var(--line); border-radius: 4px; margin-bottom: 18px; background: var(--surface); overflow: hidden; }
+.sec-block:first-of-type { border-top: 1px solid var(--line); }
+.sec-block > summary { background: var(--surface-2); padding: 12px 14px; }
+.sec-block[open] > summary { border-bottom: 1px solid var(--line); }
+.sec-block > summary h3 { font-size: 1rem; font-weight: 700; }
+.sec-body { padding: 0; }
+.sec-summary { padding: 10px 16px 0; margin: 0; }
+.sec-body > .mod, .sec-body > .frow { width: 100%; margin: 0; border-radius: 0; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.sec-body > .mod:last-child, .sec-body > .frow:last-child { border-bottom: 0; }
+.mod:hover, .frow:hover { background: var(--bg-2); }
+.mod-name { color: var(--hi); font-weight: 400; }
+.label-text { padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.mod-files { padding: 0 0 6px 58px; border-bottom: 1px solid var(--line); }
+
+/* ---------- calendar ---------- */
+.cal { border-radius: 4px; }
+.cal-side { display: grid; gap: 24px; align-content: start; }
+.cal-list h3, .agenda h3 { font-size: 1rem; font-weight: 700; padding-bottom: 6px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.cal-check { display: flex; align-items: center; gap: 10px; padding: 5px 0; cursor: pointer; }
+.cal-check input { width: 18px; height: 18px; margin: 0; accent-color: var(--k); }
+.agenda.panel { border: 0; padding: 0; background: none; }
+.cal-ev { border-radius: 3px; }
+
+/* ---------- sign-in ---------- */
+.welcome { background: var(--nav); }
+.connect-card { border-radius: 4px; border: 0; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25); }
+.welcome-brand b { color: var(--ink); }
+
+/* ---------- phones: Canvas Student app look ---------- */
+@media (max-width: 1099px) {
+  .course-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .cnav { position: static; flex-direction: row; gap: 0; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+  .cnav::-webkit-scrollbar { display: none; }
+  .cnav-title { display: none; }
+  .cnav-item { border-left: 0; border-bottom: 3px solid transparent; white-space: nowrap; padding: 10px 14px; }
+  .cnav-item[aria-current="page"] { border-bottom-color: var(--k, var(--ink)); }
+  .course-heading { display: none; }
+}
+@media (max-width: 899px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .gnav { display: none; }
+  .topbar { background: var(--nav); border-bottom: 0; color: #fff; }
+  .topbar.tinted { background: var(--k); }
+  .topbar .icon-btn { color: #fff; }
+  .topbar .icon-btn:hover { background: rgba(255, 255, 255, 0.15); }
+  .topbar-title h1, .crumbs h1 { color: #fff; font-weight: 700; font-size: 1.05rem; }
+  .crumbs a { color: rgba(255, 255, 255, 0.85); }
+  .crumb-sep { color: rgba(255, 255, 255, 0.6); }
+  .topbar .avatar { background: #fff; color: var(--nav); }
+  .dash-title, .page-title { display: none; }
+  .ccards { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .ccard-hero { height: 90px; }
+  .ccard-next { display: none; }
+  .ccard-icons { display: none; }
+  .ccard-body { padding-bottom: 12px; }
+  .tab[aria-current="page"] { color: var(--hi); }
+}
+
+/* phones: courses first like the Canvas app; To Do has its own tab */
+@media (max-width: 899px) {
+  .home-courses { order: 1; }
+  .home-todo { display: none; }
+  .course-aside { order: 3; }
+}

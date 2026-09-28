@@ -6,16 +6,16 @@ import { RECENT, useAnnouncements, useCourseContents, useCourseGrades, useCourse
 import { ago, dateOf, extOf, fileSize, gradePercent, plural, whenLabel } from "../lib/format";
 import { useRoute } from "../lib/router";
 import { ErrorNote, FileRow, Html, OutLink, Skeleton, TodoRow } from "../ui/bits";
-import { Cover, courseVar } from "../ui/Cover";
+import { courseVar } from "../ui/Cover";
 import { KindIcon, kindOf } from "../ui/kinds";
 import { TopBar } from "../ui/Shell";
 import { useUi } from "../ui/ui";
 
 const TABS = [
-  ["overview", "Overview"],
+  ["overview", "Modules"],
+  ["news", "Announcements"],
   ["files", "Files"],
   ["grades", "Grades"],
-  ["news", "Announcements"],
 ] as const;
 
 export function CoursePage() {
@@ -35,26 +35,22 @@ export function CoursePage() {
         <main className="page">{loading ? <Skeleton lines={6} /> : <p className="empty">That course isn't in your list. <a href="#/courses">See your courses</a></p>}</main>
       </>
     );
+  const tabLabel = TABS.find(([id]) => id === tab)?.[1] ?? "Modules";
   return (
     <>
-      <TopBar title={course.code} left={back} />
-      <main className="page" id="main" style={courseVar(course.color)}>
-        <Cover color={course.color} pattern={course.pattern} className="course-hero">
-          <span className="cover-label">
-            <b>{course.code}</b>
-            <strong>{course.name}</strong>
-            {course.name !== course.fullname && <small>{course.fullname}</small>}
-          </span>
-        </Cover>
-        <nav className="ptabs" aria-label="Course sections">
-          {TABS.map(([id, label]) => (
-            <a key={id} className="ptab" href={`#/course/${course.id}/${id}`} aria-current={tab === id ? "page" : undefined}>
-              {label}
-            </a>
-          ))}
-        </nav>
+      <TopBar title={course.code} left={back} color={course.color} crumbs={[{ label: course.code, href: `#/course/${course.id}` }, { label: tabLabel }]} />
+      <main className="page course-page" id="main" style={courseVar(course.color)}>
         <div className="course-layout">
-          <div>
+          <nav className="cnav" aria-label="Course navigation">
+            <p className="cnav-title">{course.name}</p>
+            {TABS.map(([id, label]) => (
+              <a key={id} className="cnav-item" href={`#/course/${course.id}/${id}`} aria-current={tab === id ? "page" : undefined}>
+                {label}
+              </a>
+            ))}
+          </nav>
+          <div className="course-main">
+            <h2 className="course-heading">{tabLabel}</h2>
             {tab === "files" ? <FilesTab course={course} /> : tab === "grades" ? <GradesTab course={course} /> : tab === "news" ? <NewsTab course={course} /> : <Overview course={course} />}
           </div>
           <CourseAside course={course} showTotal={tab !== "grades"} />

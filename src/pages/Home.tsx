@@ -1,51 +1,54 @@
-import { useState } from "react";
-import { CircleAlert, ExternalLink } from "lucide-react";
 import type { Todo } from "../lib/api";
 import type { Course } from "../lib/courses";
 import { RECENT, useAllFiles, useAnnouncements, useCourses, useTodo } from "../lib/data";
-import { countdown, DAY, dayDiff, dayKey, plural, startOfDay, weekdayShort, whenLabel } from "../lib/format";
+import { dayDiff } from "../lib/format";
 import { textOf } from "../lib/html";
 import { ago } from "../lib/format";
-import { CourseCard, CourseChip, ErrorNote, FileRow, OutLink, Skeleton, TodoRow } from "../ui/bits";
-import { courseVar } from "../ui/Cover";
+import { CourseCard, CourseChip, ErrorNote, FileRow, Skeleton, TodoRow } from "../ui/bits";
 import { useNow } from "../ui/hooks";
 import { TopBar } from "../ui/Shell";
-import { useUi } from "../ui/ui";
 
 export function Home() {
   const { shown, byId, loading, error } = useCourses();
   const todo = useTodo();
   const now = useNow();
-  const late = todo.items.filter((e) => e.time < now);
   const soon = todo.items.filter((e) => e.time >= now);
-  const thisWeek = soon.filter((e) => e.time - now < 7 * DAY).length;
 
-  const summary = todo.data
-    ? [thisWeek ? `${plural(thisWeek, "thing")} due this week` : "Nothing due this week", late.length ? `${late.length} overdue` : ""].filter(Boolean).join(", ") + "."
-    : "";
-
+  const news = useAnnouncements();
+  const weekAgo = Date.now() / 1000 - RECENT;
+  const { files } = useAllFiles();
   return (
     <>
-      <TopBar title="Home" />
+      <TopBar title="Dashboard" />
       <main className="page" id="main">
         {error != null && <ErrorNote error={error} stale={shown.length > 0} />}
         {todo.error != null && !error && <ErrorNote error={todo.error} stale={!!todo.data} onRetry={todo.refresh} />}
-        <p className="hello">
-          <b>{new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}.</b>
-          {summary && ` ${summary}`}
-        </p>
+        <h2 className="dash-title">Dashboard</h2>
         <div className="home">
           <div className="home-main">
-            <div className="home-hero">
-              {todo.loading ? <Skeleton lines={4} /> : <Hero next={soon[0]} course={soon[0] && byId.get(soon[0].course)} late={late.length} />}
-              <WeekStrip items={soon} byId={byId} now={now} />
-            </div>
-            <section className="sect home-courses" aria-labelledby="h-courses">
-              <div className="sect-head">
-                <h2 id="h-courses">Your courses</h2>
-                <a href="#/courses">All courses</a>
-              </div>
-              {loading ? <Skeleton lines={3} /> : <CourseGrid courses={shown} todo={soon} />}
+            <section className="home-courses" aria-label="Your courses">
+              {loading ? (
+                <Skeleton lines={4} />
+              ) : !shown.length ? (
+                <div className="empty-big">
+                  <h3>No courses to show</h3>
+                  <p className="muted">
+                    Pick which courses appear in <a href="#/settings">Settings</a>.
+                  </p>
+                </div>
+              ) : (
+                <div className="ccards">
+                  {shown.map((c) => (
+                    <CourseCard
+                      key={c.id}
+                      course={c}
+                      next={soon.find((e) => e.course === c.id)}
+                      newFiles={files.filter((f) => f.course === c.id && f.modified >= weekAgo).length}
+                      news={(news.data ?? []).filter((n) => n.course === c.id && n.time >= weekAgo).length}
+                    />
+                  ))}
+                </div>
+              )}
             </section>
           </div>
           <aside className="home-rail">
@@ -56,108 +59,6 @@ export function Home() {
         </div>
       </main>
     </>
-  );
-}
-
-function Hero({ next, course, late }: { next?: Todo; course?: Course; late: number }) {
-  const { openActivity } = useUi();
-  const now = useNow(15_000);
-  const open = () => next && openActivity({ course: next.course, module: next.module, instance: next.instance, name: next.name, time: next.time, url: next.url });
-  const jumpLate = () => document.getElementById("todo-late")?.scrollIntoView({ behavior: "smooth", block: "center" });
-
-  if (!next)
-    return (
-      <section className="hero" aria-label="Next deadline">
-        <p className="calm">Nothing due in the next few weeks</p>
-        <p className="muted">New deadlines show up here as soon as your lecturers set them.</p>
-        {late > 0 && (
-          <button className="late-pill" type="button" onClick={jumpLate}>
-            <CircleAlert /> {plural(late, "overdue item")}
-          </button>
-        )}
-      </section>
-    );
-  const left = countdown(next.time - now).map(([n, u]) => `${n} ${u}`).join(" ");
-  const urgent = next.time - now < 2 * DAY;
-  return (
-    <section className="next-card panel" aria-label="Next deadline" style={course ? courseVar(course.color) : undefined}>
-      <div className="next-top">
-        <span>Next due</span>
-        <span className={urgent ? "due-soon" : ""}>in {left}</span>
-      </div>
-      <h2 className="next-title">
-        <button type="button" onClick={open}>
-          {next.name}
-        </button>
-      </h2>
-      <div className="next-meta">
-        <CourseChip course={course} />
-        <span>Due {whenLabel(next.time)}</span>
-      </div>
-      <div className="hero-actions">
-        <button className="btn primary" type="button" onClick={open}>
-          View details
-        </button>
-        <OutLink href={next.url} className="btn">
-          <ExternalLink /> Open in Moodle
-        </OutLink>
-        {late > 0 && (
-          <button className="late-pill" type="button" onClick={jumpLate}>
-            <CircleAlert /> {plural(late, "overdue item")}
-          </button>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function WeekStrip({ items, byId, now }: { items: Todo[]; byId: Map<number, Course>; now: number }) {
-  const today = startOfDay(new Date(now * 1000));
-  const days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    return d;
-  });
-  return (
-    <div className="week" role="list" aria-label="The next 7 days">
-      {days.map((d, i) => {
-        const key = dayKey(d.getTime() / 1000);
-        const on = items.filter((e) => dayKey(e.time) === key);
-        const label = `${d.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}: ${on.length ? plural(on.length, "deadline") : "nothing due"}`;
-        return (
-          <a role="listitem" key={key} href={`#/calendar?d=${key}`} className={`day-cell ${i === 0 ? "today" : ""}`} aria-label={label}>
-            <span aria-hidden="true">{i === 0 ? "Today" : weekdayShort(d)}</span>
-            <b aria-hidden="true">{d.getDate()}</b>
-            <span className="dots" aria-hidden="true">
-              {on.slice(0, 4).map((e) => (
-                <i key={e.id} style={courseVar(byId.get(e.course)?.color ?? 0)} />
-              ))}
-            </span>
-          </a>
-        );
-      })}
-    </div>
-  );
-}
-
-function CourseGrid({ courses, todo }: { courses: Course[]; todo: Todo[] }) {
-  const { files } = useAllFiles();
-  const since = Date.now() / 1000 - RECENT;
-  if (!courses.length)
-    return (
-      <div className="empty-big">
-        <h3>No courses to show</h3>
-        <p className="muted">
-          Pick which courses appear in <a href="#/settings">Settings</a>.
-        </p>
-      </div>
-    );
-  return (
-    <div className="ccards compact">
-      {courses.map((c) => (
-        <CourseCard key={c.id} course={c} next={todo.find((e) => e.course === c.id)} newFiles={files.filter((f) => f.course === c.id && f.modified >= since).length} />
-      ))}
-    </div>
   );
 }
 
@@ -181,8 +82,7 @@ export function groupTodo(items: Todo[], now: number) {
 }
 
 function TodoPanel({ items, byId, now, loading }: { items: Todo[]; byId: Map<number, Course>; now: number; loading: boolean }) {
-  const [all, setAll] = useState(false);
-  const limit = all ? Infinity : 8;
+  const limit = 7;
   let shown = 0;
   const groups = groupTodo(items, now);
   return (
@@ -214,10 +114,10 @@ function TodoPanel({ items, byId, now, loading }: { items: Todo[]; byId: Map<num
           );
         })
       )}
-      {items.length > 8 && (
-        <button className="btn ghost sm block" type="button" onClick={() => setAll((v) => !v)} style={{ marginTop: 8 }}>
-          {all ? "Show less" : `Show all ${items.length}`}
-        </button>
+      {items.length > 7 && (
+        <a className="show-all" href="#/todo">
+          Show all {items.length}
+        </a>
       )}
     </section>
   );

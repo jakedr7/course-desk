@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from "react";
-import { CircleAlert, WifiOff } from "lucide-react";
+import { ChartNoAxesColumn, CircleAlert, ClipboardList, Folder, Megaphone, WifiOff } from "lucide-react";
 import type { Course } from "../lib/courses";
 import type { Todo } from "../lib/api";
 import { explain, MoodleError } from "../lib/moodle";
@@ -159,36 +159,38 @@ export function FileRow({ file, course, showCourse, fresh }: { file: PlacedFile 
   );
 }
 
-export function CourseCard({ course, next, newFiles }: { course: Course; next?: Todo; newFiles?: number }) {
+/** Canvas-style course card: colour block, course name in its colour, shortcut icons. */
+export function CourseCard({ course, next, newFiles, news }: { course: Course; next?: Todo; newFiles?: number; news?: number }) {
+  const base = `#/course/${course.id}`;
   return (
-    <a className="ccard" href={`#/course/${course.id}`} style={courseVar(course.color)}>
-      <span className="ccard-body">
+    <div className="ccard" style={courseVar(course.color)}>
+      <a className="ccard-hero" href={base} aria-label={course.name} tabIndex={-1}>
+        {course.grade && <span className="ccard-grade">{course.grade}</span>}
+      </a>
+      <div className="ccard-body">
+        <a className="ccard-title" href={base}>
+          {course.name}
+        </a>
         <span className="ccard-code">{course.code}</span>
-        <span className="ccard-name">{course.name}</span>
-        <span className="ccard-next">
-          {next ? (
-            <>
-              Next: <strong>{next.name}</strong>, {whenLabel(next.time)}
-            </>
-          ) : (
-            "Nothing due soon"
-          )}
-        </span>
-        <span className="ccard-foot">
-          {!!newFiles && (
-            <span>
-              <b>{newFiles}</b> new<span className="word"> {newFiles === 1 ? "file" : "files"}</span>
-            </span>
-          )}
-          {course.grade && (
-            <span className="grade">
-              <b>{course.grade}</b>
-              <small>course total</small>
-            </span>
-          )}
-        </span>
-      </span>
-    </a>
+        <span className="ccard-next">{next ? `Next: ${next.name}, ${whenLabel(next.time)}` : "Nothing due soon"}</span>
+      </div>
+      <div className="ccard-icons">
+        <a href={`${base}/news`} aria-label={`Announcements${news ? `, ${news} new` : ""}`} title="Announcements">
+          <Megaphone />
+          {!!news && <span className="ccard-badge">{news}</span>}
+        </a>
+        <a href={base} aria-label="Modules" title="Modules">
+          <ClipboardList />
+        </a>
+        <a href={`${base}/files`} aria-label={`Files${newFiles ? `, ${newFiles} new` : ""}`} title="Files">
+          <Folder />
+          {!!newFiles && <span className="ccard-badge">{newFiles}</span>}
+        </a>
+        <a href={`${base}/grades`} aria-label="Grades" title="Grades">
+          <ChartNoAxesColumn />
+        </a>
+      </div>
+    </div>
   );
 }
 

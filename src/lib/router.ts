@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-export type Page = "home" | "calendar" | "courses" | "course" | "grades" | "inbox" | "settings" | "connect";
+export type Page = "home" | "calendar" | "courses" | "course" | "grades" | "inbox" | "settings" | "connect" | "todo";
 export interface Route {
   page: Page;
   id?: number;
@@ -8,7 +8,7 @@ export interface Route {
   params: URLSearchParams;
 }
 
-const PAGES: Page[] = ["home", "calendar", "courses", "course", "grades", "inbox", "settings", "connect"];
+const PAGES: Page[] = ["home", "calendar", "courses", "course", "grades", "inbox", "settings", "connect", "todo"];
 
 export function parseHash(hash: string): Route {
   const raw = hash.replace(/^#\/?/, "");
