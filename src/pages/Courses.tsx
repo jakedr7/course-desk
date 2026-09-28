@@ -1,8 +1,11 @@
 import { useMemo, useState } from "react";
 import { RECENT, useAllFiles, useCourses, useTodo } from "../lib/data";
-import { dayLabel, dayKey, plural } from "../lib/format";
+import type { Todo } from "../lib/api";
+import type { Course } from "../lib/courses";
+import { dayLabel, dayKey, plural, whenLabel } from "../lib/format";
 import { go, useRoute } from "../lib/router";
-import { CourseCard, ErrorNote, FileRow, Skeleton } from "../ui/bits";
+import { ErrorNote, FileRow, Skeleton } from "../ui/bits";
+import { courseVar } from "../ui/Cover";
 import { TopBar } from "../ui/Shell";
 
 export function Courses() {
@@ -19,10 +22,10 @@ export function Courses() {
       <main className="page" id="main">
         {error != null && <ErrorNote error={error} stale={all.length > 0} />}
         <div className="cal-head">
-          <h2>{tab === "files" ? "Recent files" : "Courses"}</h2>
+          <h2>{tab === "files" ? "Recent files" : "All courses"}</h2>
           <div className="segmented" role="group" aria-label="View">
             <button type="button" aria-pressed={tab === "courses"} onClick={() => go("/courses")}>
-              Courses
+              All courses
             </button>
             <button type="button" aria-pressed={tab === "files"} onClick={() => go("/courses?tab=files")}>
               Recent files
@@ -35,16 +38,7 @@ export function Courses() {
           <Skeleton lines={6} />
         ) : (
           <>
-            <div className="ccards">
-              {shown.map((c) => (
-                <CourseCard
-                  key={c.id}
-                  course={c}
-                  next={todo.items.find((e) => e.course === c.id && e.time >= Date.now() / 1000)}
-                  newFiles={files.filter((f) => f.course === c.id && f.modified >= since).length}
-                />
-              ))}
-            </div>
+            <CourseTable title="Current enrolments" courses={shown} todo={todo.items} newFiles={(id) => files.filter((f) => f.course === id && f.modified >= since).length} />
             {!shown.length && (
               <div className="empty-big">
                 <h3>No courses switched on</h3>
@@ -54,9 +48,15 @@ export function Courses() {
               </div>
             )}
             {hidden > 0 && (
-              <p className="muted" style={{ marginTop: 22, fontSize: "0.92rem" }}>
-                {plural(hidden, "other enrolment")} (earlier semesters and non-course pages) {hidden === 1 ? "is" : "are"} hidden. <a href="#/settings">Change which courses show</a>
-              </p>
+              <details className="past-courses">
+                <summary>
+                  {plural(hidden, "other enrolment")} (earlier semesters and non-course pages)
+                </summary>
+                <CourseTable courses={all.filter((c) => !c.shown)} todo={[]} newFiles={() => 0} past />
+                <p className="muted" style={{ fontSize: "0.88rem", marginTop: 8 }}>
+                  To show one of these on your Dashboard, switch it on in <a href="#/settings">Settings</a>.
+                </p>
+              </details>
             )}
           </>
         )}
@@ -102,6 +102,57 @@ function RecentFiles() {
           </section>
         ))
       )}
+    </div>
+  );
+}
+
+function term(c: Course): string {
+  const f = (t: number) => new Date(t * 1000).toLocaleDateString(undefined, { month: "short", year: "numeric" });
+  if (!c.start) return "";
+  return c.end ? `${f(c.start)} – ${f(c.end)}` : `From ${f(c.start)}`;
+}
+
+/** Canvas "All Courses" style table. */
+function CourseTable({ title, courses, todo, newFiles, past }: { title?: string; courses: Course[]; todo: Todo[]; newFiles: (id: number) => number; past?: boolean }) {
+  if (!courses.length) return null;
+  const now = Date.now() / 1000;
+  return (
+    <div className="table-wrap">
+      {title && <h3 className="table-title">{title}</h3>}
+      <table className="gtable course-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th className="hide-sm">Term</th>
+            {!past && <th className="hide-sm">Next due</th>}
+            {!past && <th className="num hide-sm">New files</th>}
+            <th className="num">Grade</th>
+          </tr>
+        </thead>
+        <tbody>
+          {courses.map((c) => {
+            const next = todo.find((e) => e.course === c.id && e.time >= now);
+            const n = newFiles(c.id);
+            return (
+              <tr key={c.id}>
+                <td>
+                  <span className="course-cell" style={courseVar(c.color)}>
+                    <i aria-hidden="true" />
+                    <span>
+                      {past ? <b>{c.name}</b> : <a href={`#/course/${c.id}`}>{c.name}</a>}
+                      <small>{c.code}</small>
+                    </span>
+                  </span>
+                </td>
+                <td className="hide-sm muted">{term(c)}</td>
+                {!past && <td className="hide-sm">{next ? <>{next.name}<small className="muted" style={{ display: "block" }}>{whenLabel(next.time)}</small></> : <span className="muted">Nothing</span>}</td>}
+                {!past && <td className="num hide-sm">{n ? <a href={`#/course/${c.id}/files`}>{n}</a> : <span className="muted">0</span>}</td>}
+                <td className="num">{c.grade ?? <span className="muted">–</span>}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

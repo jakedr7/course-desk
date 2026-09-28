@@ -209,3 +209,48 @@ h1, h2, h3, h4 { font-weight: 700; }
   .home-todo { display: none; }
   .course-aside { order: 3; }
 }
+
+/* ---------- dashboard week calendar ---------- */
+.week-cal { margin-top: 40px; }
+.week-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 12px; }
+.week-head h2 { font-size: 1.25rem; font-weight: 700; }
+.week-range { margin: 0 6px 0 4px; font-size: 0.9rem; }
+.week-all { margin-left: auto; font-size: 0.9rem; }
+.week-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.week-day { border-right: 1px solid var(--line); min-height: 150px; display: flex; flex-direction: column; min-width: 0; }
+.week-day:last-child { border-right: 0; }
+.week-date { display: flex; align-items: baseline; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--line); background: var(--surface-2); color: var(--ink); text-decoration: none; }
+.week-date:hover { text-decoration: none; background: var(--bg-2); }
+.week-date span { font-size: 0.8rem; color: var(--muted); }
+.week-date b { font-size: 1.05rem; }
+.week-day.today .week-date { background: var(--hi); }
+.week-day.today .week-date span, .week-day.today .week-date b { color: #fff; }
+.week-events { padding: 6px; display: grid; gap: 6px; align-content: start; }
+.week-ev { display: grid; gap: 1px; text-align: left; width: 100%; padding: 6px 7px; border: 0; border-left: 3px solid var(--k); border-radius: 3px; background: color-mix(in srgb, var(--k) 10%, var(--surface)); color: var(--ink); cursor: pointer; }
+.week-ev:hover { background: color-mix(in srgb, var(--k) 18%, var(--surface)); }
+.week-ev-time { font-size: 0.72rem; color: var(--muted); }
+.week-ev-name { font-size: 0.82rem; line-height: 1.25; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.week-ev-course { font-size: 0.72rem; font-weight: 700; color: var(--k); }
+.week-none { font-size: 0.8rem; color: var(--faint); padding: 4px 2px; }
+
+/* narrow screens: the week becomes a list of days */
+@media (max-width: 1250px) {
+  .week-grid { grid-template-columns: minmax(0, 1fr); }
+  .week-day { border-right: 0; border-bottom: 1px solid var(--line); min-height: 0; flex-direction: row; }
+  .week-day:last-child { border-bottom: 0; }
+  .week-date { flex-direction: column; align-items: center; gap: 0; width: 64px; flex: none; border-bottom: 0; border-right: 1px solid var(--line); justify-content: center; }
+  .week-events { flex: 1; }
+  .week-day.no-events .week-events { align-content: center; }
+}
+
+/* ---------- all courses table ---------- */
+.table-title { font-size: 1.1rem; font-weight: 700; margin: 4px 0 8px; }
+.course-table td { vertical-align: middle; }
+.course-cell { display: flex; align-items: center; gap: 12px; }
+.course-cell i { width: 12px; height: 36px; border-radius: 2px; background: var(--k); flex: none; }
+.course-cell small { display: block; color: var(--muted); font-size: 0.82rem; }
+.past-courses { margin-top: 32px; }
+.past-courses > summary { cursor: pointer; font-weight: 700; padding: 8px 0; color: var(--hi); }
+@media (max-width: 1099px) {
+  .week-cal { order: 2; margin-top: 8px; }
+}

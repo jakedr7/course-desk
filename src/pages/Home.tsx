@@ -7,6 +7,7 @@ import { ago } from "../lib/format";
 import { CourseCard, CourseChip, ErrorNote, FileRow, Skeleton, TodoRow } from "../ui/bits";
 import { useNow } from "../ui/hooks";
 import { TopBar } from "../ui/Shell";
+import { WeekCalendar } from "../ui/WeekCalendar";
 
 export function Home() {
   const { shown, byId, loading, error } = useCourses();
@@ -50,6 +51,7 @@ export function Home() {
                 </div>
               )}
             </section>
+            <WeekCalendar />
           </div>
           <aside className="home-rail">
             <TodoPanel items={todo.items} byId={byId} now={now} loading={todo.loading} />
