@@ -1,10 +1,10 @@
 /*
   Course Desk design tokens.
-  Cool paper ground, ink-navy type, one highlighter yellow for "needs you",
-  and eight course colours that turn into notebook covers.
+  Neutral light-grey ground, dark navy text, one blue accent,
+  and eight muted course colours.
 */
 :root {
-  --bg: #F2F4F7;
+  --bg: #F5F6F8;
   --bg-2: #E8ECF1;
   --surface: #FFFFFF;
   --surface-2: #F7F9FB;
@@ -14,8 +14,8 @@
   --faint: #8792A3;
   --line: #DEE3EA;
   --line-2: #C8D0DA;
-  --hi: #FFD84D;
-  --hi-ink: #1C1600;
+  --hi: #2458D6;
+  --hi-ink: #FFFFFF;
   --danger: #C2352B;
   --danger-bg: #FBEBE9;
   --ok: #1B7A4F;
@@ -25,8 +25,8 @@
   --focus: #2F6BDE;
   --scrim: rgba(12, 20, 34, 0.42);
 
-  --k0: #2F6BDE; --k1: #0E8A7B; --k2: #7A4FD6; --k3: #D0701E;
-  --k4: #CB3C69; --k5: #587A1D; --k6: #1A86B8; --k7: #A94E2A;
+  --k0: #3B6FD8; --k1: #1D8A76; --k2: #7457C9; --k3: #C9772A;
+  --k4: #C44B6E; --k5: #5F7F2A; --k6: #2A87B3; --k7: #A65A3A;
   --on-k: #FFFFFF;
   --label: #FFFFFF;
   --label-ink: #0F1B2D;
@@ -35,8 +35,8 @@
   --shadow-2: 0 6px 18px -6px rgba(15, 27, 45, 0.18), 0 2px 4px rgba(15, 27, 45, 0.05);
   --shadow-pop: 0 24px 60px -16px rgba(15, 27, 45, 0.42), 0 4px 12px rgba(15, 27, 45, 0.08);
 
-  --display: "Bricolage Grotesque Variable", "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --display: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --side: 264px;
@@ -53,7 +53,7 @@
     --bg: #0A101C; --bg-2: #111A2A; --surface: #121B2C; --surface-2: #172236;
     --ink: #E8EDF5; --ink-2: #C3CDDB; --muted: #95A2B6; --faint: #6D7A8F;
     --line: #223049; --line-2: #2F3F5C;
-    --hi: #7A6415; --hi-ink: #FFF4C7;
+    --hi: #6E9BFF; --hi-ink: #0A101C;
     --danger: #FF8A7E; --danger-bg: #3A1716; --ok: #5ED49D; --ok-bg: #102A20; --warn: #F2C35B; --warn-bg: #2E2410;
     --focus: #8AB4FF; --scrim: rgba(0, 0, 0, 0.6);
     --k0: #7FA8F5; --k1: #4FCBB8; --k2: #B495F2; --k3: #F2A45F;
@@ -69,7 +69,7 @@
   --bg: #0A101C; --bg-2: #111A2A; --surface: #121B2C; --surface-2: #172236;
   --ink: #E8EDF5; --ink-2: #C3CDDB; --muted: #95A2B6; --faint: #6D7A8F;
   --line: #223049; --line-2: #2F3F5C;
-  --hi: #7A6415; --hi-ink: #FFF4C7;
+  --hi: #6E9BFF; --hi-ink: #0A101C;
   --danger: #FF8A7E; --danger-bg: #3A1716; --ok: #5ED49D; --ok-bg: #102A20; --warn: #F2C35B; --warn-bg: #2E2410;
   --focus: #8AB4FF; --scrim: rgba(0, 0, 0, 0.6);
   --k0: #7FA8F5; --k1: #4FCBB8; --k2: #B495F2; --k3: #F2A45F;

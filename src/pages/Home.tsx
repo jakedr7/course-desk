@@ -2,18 +2,17 @@ import { useState } from "react";
 import { CircleAlert, ExternalLink } from "lucide-react";
 import type { Todo } from "../lib/api";
 import type { Course } from "../lib/courses";
-import { RECENT, useAllFiles, useAnnouncements, useCourses, useSession, useTodo } from "../lib/data";
-import { countdown, DAY, dayDiff, dayKey, greeting, plural, startOfDay, weekdayShort, whenLabel } from "../lib/format";
+import { RECENT, useAllFiles, useAnnouncements, useCourses, useTodo } from "../lib/data";
+import { countdown, DAY, dayDiff, dayKey, plural, startOfDay, weekdayShort, whenLabel } from "../lib/format";
 import { textOf } from "../lib/html";
 import { ago } from "../lib/format";
 import { CourseCard, CourseChip, ErrorNote, FileRow, OutLink, Skeleton, TodoRow } from "../ui/bits";
 import { courseVar } from "../ui/Cover";
-import { useNow, useOnce } from "../ui/hooks";
+import { useNow } from "../ui/hooks";
 import { TopBar } from "../ui/Shell";
 import { useUi } from "../ui/ui";
 
 export function Home() {
-  const { account } = useSession();
   const { shown, byId, loading, error } = useCourses();
   const todo = useTodo();
   const now = useNow();
@@ -32,7 +31,8 @@ export function Home() {
         {error != null && <ErrorNote error={error} stale={shown.length > 0} />}
         {todo.error != null && !error && <ErrorNote error={todo.error} stale={!!todo.data} onRetry={todo.refresh} />}
         <p className="hello">
-          {greeting()}, <b>{account.first || account.name}</b>. {summary}
+          <b>{new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}.</b>
+          {summary && ` ${summary}`}
         </p>
         <div className="home">
           <div className="home-main">
@@ -62,14 +62,13 @@ export function Home() {
 function Hero({ next, course, late }: { next?: Todo; course?: Course; late: number }) {
   const { openActivity } = useUi();
   const now = useNow(15_000);
-  const first = useOnce("hero");
   const open = () => next && openActivity({ course: next.course, module: next.module, instance: next.instance, name: next.name, time: next.time, url: next.url });
   const jumpLate = () => document.getElementById("todo-late")?.scrollIntoView({ behavior: "smooth", block: "center" });
 
   if (!next)
     return (
       <section className="hero" aria-label="Next deadline">
-        <p className="calm">Nothing due in the next few weeks.</p>
+        <p className="calm">Nothing due in the next few weeks</p>
         <p className="muted">New deadlines show up here as soon as your lecturers set them.</p>
         {late > 0 && (
           <button className="late-pill" type="button" onClick={jumpLate}>
@@ -78,27 +77,21 @@ function Hero({ next, course, late }: { next?: Todo; course?: Course; late: numb
         )}
       </section>
     );
-  const parts = countdown(next.time - now);
+  const left = countdown(next.time - now).map(([n, u]) => `${n} ${u}`).join(" ");
+  const urgent = next.time - now < 2 * DAY;
   return (
-    <section className="hero" aria-label="Next deadline" style={course ? courseVar(course.color) : undefined}>
-      <p className="hero-lead">Next due in</p>
-      <p className="countdown" aria-label={`${parts.map((p) => p.join(" ")).join(" ")} left`}>
-        {parts.map(([n, u]) => (
-          <span key={u}>
-            {n}
-            <span className="u" aria-hidden="true">
-              {u}
-            </span>
-          </span>
-        ))}
-      </p>
-      <h2 className="hero-title">
+    <section className="next-card panel" aria-label="Next deadline" style={course ? courseVar(course.color) : undefined}>
+      <div className="next-top">
+        <span>Next due</span>
+        <span className={urgent ? "due-soon" : ""}>in {left}</span>
+      </div>
+      <h2 className="next-title">
         <button type="button" onClick={open}>
-          <span className={`mark ${first ? "swipe" : ""}`}>{next.name}</span>
+          {next.name}
         </button>
       </h2>
-      <div className="hero-meta">
-        <CourseChip course={course} solid />
+      <div className="next-meta">
+        <CourseChip course={course} />
         <span>Due {whenLabel(next.time)}</span>
       </div>
       <div className="hero-actions">
@@ -109,7 +102,7 @@ function Hero({ next, course, late }: { next?: Todo; course?: Course; late: numb
           <ExternalLink /> Open in Moodle
         </OutLink>
         {late > 0 && (
-          <button className="late-pill" type="button" onClick={jumpLate} style={{ marginTop: 0 }}>
+          <button className="late-pill" type="button" onClick={jumpLate}>
             <CircleAlert /> {plural(late, "overdue item")}
           </button>
         )}

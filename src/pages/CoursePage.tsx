@@ -164,7 +164,10 @@ function ModRow({ mod, course, section }: { mod: Mod; course: Course; section: s
     <>
       <KindIcon modname={mod.modname} />
       <span>
-        <span className="mod-name">{recent ? <span className="mark">{mod.name}</span> : mod.name}</span>
+        <span className="mod-name">
+          {mod.name}
+          {recent && <span className="new-badge">New</span>}
+        </span>
         <span className="mod-meta">
           <span>{kindOf(mod.modname).label}</span>
           {meta.map((m) => (

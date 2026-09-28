@@ -6,7 +6,7 @@ import { explain, MoodleError } from "../lib/moodle";
 import { cleanHtml } from "../lib/html";
 import { useSession, type PlacedFile } from "../lib/data";
 import { ago, dateOf, dayDiff, fileSize, plural, timeOf, weekdayShort, whenLabel, DAY } from "../lib/format";
-import { Cover, courseVar } from "./Cover";
+import { courseVar } from "./Cover";
 import { FileTile, KindIcon, kindOf } from "./kinds";
 import { useUi } from "./ui";
 
@@ -89,13 +89,13 @@ export function TodoRow({ item, course, late, showDate, hideCourse }: { item: To
     >
       <KindIcon modname={item.module} />
       <span>
-        <span className="todo-name">{soon ? <span className="mark">{item.name}</span> : item.name}</span>
+        <span className="todo-name">{item.name}</span>
         <span className="todo-sub">
           {!hideCourse && <CourseChip course={course} />}
           <span>{label}</span>
         </span>
       </span>
-      <span className="todo-time">
+      <span className={`todo-time ${soon ? "due-soon" : ""}`}>
         {late ? (
           lateText(item.time)
         ) : showDate ? (
@@ -130,7 +130,10 @@ export function FileRow({ file, course, showCourse, fresh }: { file: PlacedFile 
     <>
       <FileTile name={file.name} />
       <span>
-        <span className="fname">{fresh ? <span className="mark">{file.name}</span> : file.name}</span>
+        <span className="fname">
+          {file.name}
+          {fresh && <span className="new-badge">New</span>}
+        </span>
         <span className="fmeta">
           {showCourse && <CourseChip course={course} />}
           <span>{showCourse ? file.section : file.module !== file.name ? file.module : ""}</span>
@@ -159,13 +162,8 @@ export function FileRow({ file, course, showCourse, fresh }: { file: PlacedFile 
 export function CourseCard({ course, next, newFiles }: { course: Course; next?: Todo; newFiles?: number }) {
   return (
     <a className="ccard" href={`#/course/${course.id}`} style={courseVar(course.color)}>
-      <Cover color={course.color} pattern={course.pattern}>
-        <span className="cover-label">
-          <b>{course.code}</b>
-          {course.name !== course.code && <small>{course.name}</small>}
-        </span>
-      </Cover>
       <span className="ccard-body">
+        <span className="ccard-code">{course.code}</span>
         <span className="ccard-name">{course.name}</span>
         <span className="ccard-next">
           {next ? (
@@ -179,7 +177,7 @@ export function CourseCard({ course, next, newFiles }: { course: Course; next?: 
         <span className="ccard-foot">
           {!!newFiles && (
             <span>
-              <b className="mark">{newFiles}</b> new<span className="word"> {newFiles === 1 ? "file" : "files"}</span>
+              <b>{newFiles}</b> new<span className="word"> {newFiles === 1 ? "file" : "files"}</span>
             </span>
           )}
           {course.grade && (

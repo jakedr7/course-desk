@@ -1,20 +1,12 @@
 import { useMemo, useState, type FormEvent } from "react";
-import { ArrowRight, CalendarCheck, FolderOpen, ChartNoAxesColumn, ShieldCheck, Megaphone } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import { DEFAULT_SITE } from "../config";
 import * as api from "../lib/api";
-import type { Course } from "../lib/courses";
 import { demoTransport } from "../lib/demo";
 import { explain, httpTransport, normaliseSite } from "../lib/moodle";
 import { go } from "../lib/router";
 import { DEMO_ID, store, useStore } from "../lib/store";
-import { Cover, courseVar } from "../ui/Cover";
 import { Logo } from "../ui/Shell";
-
-const FAN: Pick<Course, "code" | "name" | "color" | "pattern">[] = [
-  { code: "MATH2250", name: "Industrial Statistics", color: 3, pattern: 1 },
-  { code: "COMP2611", name: "Data Structures", color: 0, pattern: 0 },
-  { code: "INFO2605", name: "Professional Ethics and Law", color: 1, pattern: 4 },
-];
 
 export function Welcome() {
   const accounts = useStore((s) => s.accounts);
@@ -57,55 +49,17 @@ export function Welcome() {
 
   return (
     <div className="welcome">
-      <section className="welcome-pitch" aria-label="About Course Desk">
-        <span className="brand" style={{ padding: 0 }}>
-          <Logo />
-          <span>
-            <b>Course Desk</b>
-          </span>
-        </span>
-        <h1>
-          Everything your Moodle knows, <span className="mark">finally in order.</span>
-        </h1>
-        <p>Deadlines counted down, every course's files in one search, grades and announcements in one place. Works with any school's Moodle, on your phone or laptop.</p>
-        <ul className="welcome-points">
-          <li>
-            <CalendarCheck /> A to-do list and calendar built from every course's deadlines
-          </li>
-          <li>
-            <FolderOpen /> New lecture files highlighted as soon as they're posted
-          </li>
-          <li>
-            <ChartNoAxesColumn /> Grades and feedback without digging through reports
-          </li>
-          <li>
-            <Megaphone /> Announcements from all your courses together
-          </li>
-        </ul>
-        <div className="fan" aria-hidden="true">
-          {FAN.map((c) => (
-            <div className="ccard" key={c.code} style={courseVar(c.color)}>
-              <Cover color={c.color} pattern={c.pattern}>
-                <span className="cover-label">
-                  <b>{c.code}</b>
-                  <small>{c.name}</small>
-                </span>
-              </Cover>
-              <span className="ccard-body">
-                <span className="ccard-name">{c.name}</span>
-                <span className="ccard-next">
-                  Next: <strong>{c.code === "COMP2611" ? "Assignment 3" : c.code === "MATH2250" ? "Quiz 4" : "Case study"}</strong>
-                </span>
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
-
       <section className="connect">
         <form className="connect-card" onSubmit={connect} noValidate>
+          <span className="brand welcome-brand">
+            <Logo />
+            <span>
+              <b>Course Desk</b>
+              <small>Deadlines, files and grades from Moodle</small>
+            </span>
+          </span>
           <h2>{adding ? "Add a Moodle account" : "Connect your Moodle"}</h2>
-          <p>{adding ? "Connect another school or account. You can switch between them in Settings." : "Takes about a minute. You'll need your Moodle key, which your school's Moodle gives you."}</p>
+          <p>{adding ? "Connect another school or account. You can switch between them in Settings." : "Sign in with the key from your school's Moodle. It takes about a minute."}</p>
 
           <div className="field">
             <label htmlFor="site">Your school's Moodle address</label>

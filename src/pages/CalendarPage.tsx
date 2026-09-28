@@ -24,10 +24,10 @@ export function CalendarPage() {
   const [hidden, setHidden] = useState<Set<number>>(new Set());
   const selKey = dayKey(picked.getTime() / 1000);
 
-  // grid runs Monday to Sunday and covers whole weeks
+  // grid runs Sunday to Saturday and covers whole weeks
   const gridStart = new Date(month);
-  gridStart.setDate(1 - ((month.getDay() + 6) % 7));
-  const weeks = Math.ceil((((month.getDay() + 6) % 7) + new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()) / 7);
+  gridStart.setDate(1 - month.getDay());
+  const weeks = Math.ceil((month.getDay() + new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()) / 7);
   const gridEnd = new Date(gridStart);
   gridEnd.setDate(gridStart.getDate() + weeks * 7);
   const from = Math.floor(gridStart.getTime() / 1000);
