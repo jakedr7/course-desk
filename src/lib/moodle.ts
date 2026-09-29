@@ -64,6 +64,29 @@ export function normaliseSite(input: string): string | null {
   return u.origin + path;
 }
 
+/**
+ * Read a key from what someone pasted: either the 32-character key itself, or the
+ * "moodlemobile://token=…" link Moodle's app sign-in page produces (used by schools
+ * that sign in through Microsoft or Google and hide the Security keys page).
+ */
+export function extractKey(input: string): string | null {
+  const text = input.trim();
+  const link = /token=([A-Za-z0-9+/=_%-]+)/.exec(text);
+  if (link) {
+    try {
+      const b64 = decodeURIComponent(link[1]).replace(/-/g, "+").replace(/_/g, "/");
+      // format is "<site checksum>:::<key>[:::<private key>]"; the checksum is also 32 hex characters
+      const parts = atob(b64).split(":::");
+      const token = parts.length > 1 && /^[0-9a-f]{32}$/i.test(parts[1]) ? parts[1] : null;
+      if (token) return token.toLowerCase();
+    } catch {
+      /* not a Moodle app link; fall through */
+    }
+  }
+  const plain = /\b[0-9a-f]{32}\b/i.exec(text);
+  return plain ? plain[0].toLowerCase() : null;
+}
+
 export function isKeyError(e: unknown): boolean {
   if (!(e instanceof MoodleError)) return false;
   return /token|accessexception|servicerequireslogin|usernotfullysetup|nopermissions|webservicesnotenabled/i.test(e.code) || /token/i.test(e.message);

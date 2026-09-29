@@ -4,7 +4,7 @@ import { PREVIEW } from "./config";
 import * as api from "./lib/api";
 import { SessionContext, useCourses, useSession } from "./lib/data";
 import { demoTransport } from "./lib/demo";
-import { explain, httpTransport, isKeyError } from "./lib/moodle";
+import { explain, httpTransport, isKeyError, extractKey } from "./lib/moodle";
 import { cache } from "./lib/query";
 import { go, useRoute } from "./lib/router";
 import { DEMO_ID, store, useActiveAccount, usePrefs, useStore, type Account } from "./lib/store";
@@ -150,7 +150,8 @@ function KeyProblem({ error }: { error: unknown }) {
   const [busy, setBusy] = useState(false);
   const { title, text } = explain(error);
   const save = async () => {
-    const m = /[0-9a-f]{32}/i.exec(key);
+    const found = extractKey(key);
+    const m = found ? [found] : null;
     if (!m) return setErr("A key is 32 letters and numbers.");
     setBusy(true);
     setErr("");

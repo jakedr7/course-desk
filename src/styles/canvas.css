@@ -254,3 +254,8 @@ h1, h2, h3, h4 { font-weight: 700; }
 @media (max-width: 1099px) {
   .week-cal { order: 2; margin-top: 8px; }
 }
+
+.nokey { margin: -6px 0 18px; font-size: 0.9rem; color: var(--ink-2); }
+.nokey > summary { cursor: pointer; color: var(--hi); }
+.nokey ol { margin: 8px 0 0; padding-left: 1.3em; display: grid; gap: 4px; }
+.nokey code { font-size: 0.85em; background: var(--surface-2); padding: 1px 4px; border-radius: 3px; }

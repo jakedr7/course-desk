@@ -3,7 +3,7 @@ import { ArrowRight, ShieldCheck } from "lucide-react";
 import { DEFAULT_SITE } from "../config";
 import * as api from "../lib/api";
 import { demoTransport } from "../lib/demo";
-import { explain, httpTransport, normaliseSite } from "../lib/moodle";
+import { explain, httpTransport, normaliseSite, extractKey } from "../lib/moodle";
 import { go } from "../lib/router";
 import { DEMO_ID, store, useStore } from "../lib/store";
 import { Logo } from "../ui/Shell";
@@ -23,7 +23,8 @@ export function Welcome() {
     e.preventDefault();
     setErr(null);
     if (!root) return setErr({ field: "site", text: "Enter your school's Moodle address, like moodle.myschool.edu. It must use https." });
-    const m = /[0-9a-f]{32}/i.exec(key);
+    const found = extractKey(key);
+    const m = found ? [found] : null;
     if (!m) return setErr({ field: "key", text: "A key is 32 letters and numbers. Copy it from your Moodle's Security keys page." });
     setBusy(true);
     try {
@@ -91,9 +92,29 @@ export function Welcome() {
             </li>
           </ol>
 
+          {root && (
+            <details className="nokey">
+              <summary>No Security keys page? (schools that sign in with Microsoft or Google)</summary>
+              <ol>
+                <li>On a laptop, sign in to your Moodle in Chrome or Edge.</li>
+                <li>Press F12 and open the <b>Console</b> tab.</li>
+                <li>
+                  In that same tab, open{" "}
+                  <a href={`${root}/admin/tool/mobile/launch.php?service=moodle_mobile_app&passport=${Math.floor(Math.random() * 1e9)}&urlscheme=moodlemobile`} target="_self">
+                    this Moodle app sign-in link
+                  </a>
+                  .
+                </li>
+                <li>
+                  The Console shows a message with <code>moodlemobile://token=…</code>. Copy that whole line and paste it into the key box below.
+                </li>
+              </ol>
+            </details>
+          )}
+
           <div className="field">
             <label htmlFor="key">Your key</label>
-            <input id="key" className="key" type="text" autoComplete="off" autoCapitalize="off" spellCheck={false} placeholder="32 letters and numbers" value={key} onChange={(e) => setKey(e.target.value)} aria-invalid={err?.field === "key"} />
+            <input id="key" className="key" type="text" autoComplete="off" autoCapitalize="off" spellCheck={false} placeholder="32 letters and numbers, or the moodlemobile:// link" value={key} onChange={(e) => setKey(e.target.value)} aria-invalid={err?.field === "key"} />
             {err?.field === "key" && <span className="err">{err.text}</span>}
           </div>
           {err?.field === "form" && (

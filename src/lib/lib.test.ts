@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { flatten, normaliseSite, httpTransport } from "./moodle";
+import { flatten, normaliseSite, httpTransport, extractKey } from "./moodle";
 import { courseCode, shapeCourses } from "./courses";
 import { countdown, gradePercent, DAY } from "./format";
 import { parseHash } from "./router";
@@ -93,4 +93,14 @@ describe("router", () => {
     expect(parseHash("").page).toBe("home");
     expect(parseHash("#/calendar?d=2026-10-01").params.get("d")).toBe("2026-10-01");
   });
+});
+
+describe("extractKey", () => {
+  const key = "0123456789abcdef0123456789abcdef";
+  it("reads a plain key", () => expect(extractKey(`  ${key.toUpperCase()} `)).toBe(key));
+  it("reads the Moodle app sign-in link", () => {
+    const b64 = btoa(`d41d8cd98f00b204e9800998ecf8427e:::${key}:::privatetoken123`);
+    expect(extractKey(`Failed to launch 'moodlemobile://token=${b64}' because the scheme has no handler`)).toBe(key);
+  });
+  it("rejects anything else", () => expect(extractKey("hello")).toBeNull());
 });

@@ -4,7 +4,7 @@ import { NATIVE, PREVIEW, PUBLIC_URL } from "../config";
 import * as api from "../lib/api";
 import { COLOR_COUNT, type Course } from "../lib/courses";
 import { useCourses, useSession } from "../lib/data";
-import { explain, httpTransport } from "../lib/moodle";
+import { explain, httpTransport, extractKey } from "../lib/moodle";
 import { cache, useLastUpdated } from "../lib/query";
 import { go } from "../lib/router";
 import { store, useStore, type Theme } from "../lib/store";
@@ -231,7 +231,8 @@ function KeyGroup() {
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const save = async () => {
-    const m = /[0-9a-f]{32}/i.exec(key);
+    const found = extractKey(key);
+    const m = found ? [found] : null;
     if (!m) return setErr("A key is 32 letters and numbers. Copy it again from Moodle.");
     setBusy(true);
     setErr("");
