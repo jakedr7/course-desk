@@ -4,6 +4,7 @@ import { ago, gradePercent } from "../lib/format";
 import { CourseChip, ErrorNote, Skeleton } from "../ui/bits";
 import { Cover, courseVar } from "../ui/Cover";
 import { KindIcon } from "../ui/kinds";
+import { cache } from "../lib/query";
 import { TopBar } from "../ui/Shell";
 
 export function Grades() {
@@ -23,7 +24,7 @@ export function Grades() {
     <>
       <TopBar title="Grades" />
       <main className="page narrow" id="main">
-        {error != null && <ErrorNote error={error} stale={shown.length > 0} />}
+        {error != null && <ErrorNote error={error} onRetry={() => cache.invalidate()} stale={shown.length > 0} />}
         <h2 className="page-title">Grades</h2>
         <p className="page-sub">Course totals as your lecturers have released them. Tap a course for every item.</p>
         {loading ? (

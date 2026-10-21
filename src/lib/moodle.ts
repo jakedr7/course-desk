@@ -100,8 +100,13 @@ export function explain(e: unknown): { title: string; text: string } {
         return { title: "You're offline", text: "Connect to the internet and try again. What was loaded before is still shown." };
       case "network":
         return {
-          title: "Couldn't reach the site",
-          text: "The site didn't answer. It may be down, the address may be wrong, or it may not allow apps like this to connect from a browser.",
+          title: "Your Moodle isn't answering",
+          text: "The site didn't respond at all, so it's probably down or under maintenance. Check whether it opens normally in your browser; Course Desk will catch up once it's back.",
+        };
+      case "blocked":
+        return {
+          title: "Your Moodle is blocking the website version",
+          text: "The site is up, but it now refuses connections from other websites, including Course Desk's. The Course Desk Android app isn't affected.",
         };
       case "notmoodle":
         return { title: "That isn't a Moodle site", text: "The address answered, but not like Moodle does. Check it's the address you use to sign in." };
@@ -124,6 +129,20 @@ export function explain(e: unknown): { title: string; text: string } {
     }
   }
   return { title: "Something went wrong", text: e instanceof Error ? e.message : "Try again in a moment." };
+}
+
+/** Does anything answer at the site at all? (No data is read; this only tells up from down.) */
+async function answers(site: string): Promise<boolean> {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 10000);
+  try {
+    await fetch(`${site}/login/index.php`, { mode: "no-cors", cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer", signal: ctl.signal });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export function httpTransport(site: string, token: string): Transport {
@@ -153,7 +172,11 @@ export function httpTransport(site: string, token: string): Transport {
           referrerPolicy: "no-referrer",
         });
       } catch {
-        throw new MoodleError(navigator.onLine === false ? "offline" : "network", "The site couldn't be reached.");
+        clearTimeout(timer);
+        if (navigator.onLine === false) throw new MoodleError("offline", "You're offline.");
+        // Work out why: a site that is up but refuses requests from other websites still
+        // answers a plain no-cors request, while a site that is down answers nothing.
+        throw new MoodleError((await answers(site)) ? "blocked" : "network", "The site couldn't be reached.");
       } finally {
         clearTimeout(timer);
       }

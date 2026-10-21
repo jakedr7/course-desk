@@ -6,6 +6,7 @@ import { textOf } from "../lib/html";
 import { ago } from "../lib/format";
 import { CourseCard, CourseChip, ErrorNote, FileRow, Skeleton, TodoRow } from "../ui/bits";
 import { useNow } from "../ui/hooks";
+import { cache } from "../lib/query";
 import { TopBar } from "../ui/Shell";
 import { WeekCalendar } from "../ui/WeekCalendar";
 
@@ -22,7 +23,7 @@ export function Home() {
     <>
       <TopBar title="Dashboard" />
       <main className="page" id="main">
-        {error != null && <ErrorNote error={error} stale={shown.length > 0} />}
+        {error != null && <ErrorNote error={error} onRetry={() => cache.invalidate()} stale={shown.length > 0} />}
         {todo.error != null && !error && <ErrorNote error={todo.error} stale={!!todo.data} onRetry={todo.refresh} />}
         <h2 className="dash-title">Dashboard</h2>
         <div className="home">

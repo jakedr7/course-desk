@@ -6,6 +6,7 @@ import { dayLabel, dayKey, plural, whenLabel } from "../lib/format";
 import { go, useRoute } from "../lib/router";
 import { ErrorNote, FileRow, Skeleton } from "../ui/bits";
 import { courseVar } from "../ui/Cover";
+import { cache } from "../lib/query";
 import { TopBar } from "../ui/Shell";
 
 export function Courses() {
@@ -20,7 +21,7 @@ export function Courses() {
     <>
       <TopBar title="Courses" />
       <main className="page" id="main">
-        {error != null && <ErrorNote error={error} stale={all.length > 0} />}
+        {error != null && <ErrorNote error={error} onRetry={() => cache.invalidate()} stale={all.length > 0} />}
         <div className="cal-head">
           <h2>{tab === "files" ? "Recent files" : "All courses"}</h2>
           <div className="segmented" role="group" aria-label="View">
